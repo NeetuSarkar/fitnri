@@ -1,11 +1,11 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { Suspense, useState, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { CalendarDays, CheckCircle2 } from "lucide-react";
 
-export default function BookConsultationPage() {
+function BookingFormContent() {
   const searchParams = useSearchParams();
 
   const selectedPlan = searchParams.get("plan");
@@ -19,6 +19,7 @@ export default function BookConsultationPage() {
   const [submitted, setSubmitted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
+  const [minDate, setMinDate] = useState("");
 
   const [formData, setFormData] = useState({
     name: "",
@@ -31,6 +32,7 @@ export default function BookConsultationPage() {
     time: "",
   });
 
+  // Update the selected coaching plan from the URL.
   useEffect(() => {
     if (selectedPlan && validPlans.includes(selectedPlan)) {
       setFormData((previousData) => ({
@@ -40,6 +42,20 @@ export default function BookConsultationPage() {
     }
   }, [selectedPlan]);
 
+  // Calculate today's date in the browser's local timezone.
+  useEffect(() => {
+    const today = new Date();
+
+    const localDate = new Date(
+      today.getTime() - today.getTimezoneOffset() * 60000,
+    )
+      .toISOString()
+      .slice(0, 10);
+
+    setMinDate(localDate);
+  }, []);
+
+  // Handle form input changes.
   function handleChange(event) {
     const { name, value } = event.target;
 
@@ -51,6 +67,7 @@ export default function BookConsultationPage() {
     setErrorMessage("");
   }
 
+  // Submit consultation request to the backend.
   async function handleSubmit(event) {
     event.preventDefault();
 
@@ -115,6 +132,7 @@ export default function BookConsultationPage() {
     <main className="min-h-screen bg-[#07130f] px-4 py-6 text-white sm:px-8 sm:py-8">
       <div className="mx-auto max-w-3xl">
         {submitted ? (
+          // SUCCESS SCREEN
           <div className="mt-8 rounded-2xl border border-lime-400/20 bg-[#0b1913] p-8 text-center sm:mt-12 sm:p-12">
             <CheckCircle2 size={48} className="mx-auto mb-5 text-lime-400" />
 
@@ -141,7 +159,8 @@ export default function BookConsultationPage() {
           </div>
         ) : (
           <>
-            {/* Page heading */}
+            {/* PAGE HEADING */}
+
             <div className="mb-5">
               <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-lime-400 sm:text-xs">
                 Your fitness journey starts here
@@ -159,13 +178,15 @@ export default function BookConsultationPage() {
               </p>
             </div>
 
-            {/* Booking form */}
+            {/* BOOKING FORM */}
+
             <form
               onSubmit={handleSubmit}
               className="rounded-2xl border border-white/10 bg-[#0b1913] p-4 sm:p-5"
             >
               <div className="grid gap-x-5 gap-y-3 sm:grid-cols-2">
-                {/* Full name */}
+                {/* FULL NAME */}
+
                 <div>
                   <label htmlFor="name" className={labelClass}>
                     Full name *
@@ -185,7 +206,8 @@ export default function BookConsultationPage() {
                   />
                 </div>
 
-                {/* Email */}
+                {/* EMAIL */}
+
                 <div>
                   <label htmlFor="email" className={labelClass}>
                     Email address *
@@ -205,7 +227,8 @@ export default function BookConsultationPage() {
                   />
                 </div>
 
-                {/* WhatsApp */}
+                {/* WHATSAPP */}
+
                 <div>
                   <label htmlFor="whatsapp" className={labelClass}>
                     WhatsApp number *
@@ -225,7 +248,8 @@ export default function BookConsultationPage() {
                   />
                 </div>
 
-                {/* Country */}
+                {/* COUNTRY */}
+
                 <div>
                   <label htmlFor="country" className={labelClass}>
                     Country where you live *
@@ -245,7 +269,8 @@ export default function BookConsultationPage() {
                   />
                 </div>
 
-                {/* Fitness goal */}
+                {/* FITNESS GOAL */}
+
                 <div>
                   <label htmlFor="goal" className={labelClass}>
                     Primary fitness goal *
@@ -262,17 +287,23 @@ export default function BookConsultationPage() {
                     <option value="" disabled>
                       Select your goal
                     </option>
+
                     <option value="Fat loss">Fat loss</option>
+
                     <option value="Muscle gain">Muscle gain</option>
+
                     <option value="Strength">Build strength</option>
+
                     <option value="General fitness">General fitness</option>
+
                     <option value="Body recomposition">
                       Body recomposition
                     </option>
                   </select>
                 </div>
 
-                {/* Coaching plan */}
+                {/* COACHING PLAN */}
+
                 <div>
                   <label htmlFor="plan" className={labelClass}>
                     Preferred coaching plan *
@@ -287,35 +318,41 @@ export default function BookConsultationPage() {
                     required
                   >
                     <option value="Starter">Starter — ₹15,000/month</option>
+
                     <option value="Transformation">
                       Transformation — ₹25,000/month
                     </option>
+
                     <option value="Premium">Premium — ₹30,000/month</option>
+
                     <option value="Not sure">Not sure yet</option>
                   </select>
                 </div>
 
-                {/* Preferred date */}
+                {/* PREFERRED DATE */}
+
                 <div>
                   <label htmlFor="date" className={labelClass}>
-                    Preferred consultation date
+                    Preferred consultation date *
                   </label>
 
                   <input
                     id="date"
                     name="date"
                     type="date"
-                    min={new Date().toLocaleDateString("en-CA")}
+                    min={minDate || undefined}
                     value={formData.date}
                     onChange={handleChange}
                     className={inputClass}
+                    required
                   />
                 </div>
 
-                {/* Preferred time */}
+                {/* PREFERRED TIME */}
+
                 <div>
                   <label htmlFor="time" className={labelClass}>
-                    Preferred time
+                    Preferred time *
                   </label>
 
                   <select
@@ -324,16 +361,21 @@ export default function BookConsultationPage() {
                     value={formData.time}
                     onChange={handleChange}
                     className={inputClass}
+                    required
                   >
                     <option value="">Select a time</option>
+
                     <option value="Morning">Morning</option>
+
                     <option value="Afternoon">Afternoon</option>
+
                     <option value="Evening">Evening</option>
                   </select>
                 </div>
               </div>
 
-              {/* Appointment information */}
+              {/* APPOINTMENT INFORMATION */}
+
               <div className="mt-4 rounded-xl border border-white/10 bg-white/[0.03] p-3">
                 <div className="flex items-start gap-3">
                   <CalendarDays
@@ -349,7 +391,8 @@ export default function BookConsultationPage() {
                 </div>
               </div>
 
-              {/* API error message */}
+              {/* API ERROR MESSAGE */}
+
               {errorMessage && (
                 <div
                   role="alert"
@@ -359,7 +402,8 @@ export default function BookConsultationPage() {
                 </div>
               )}
 
-              {/* Submit */}
+              {/* SUBMIT BUTTON */}
+
               <button
                 type="submit"
                 disabled={isSubmitting}
@@ -378,5 +422,21 @@ export default function BookConsultationPage() {
         )}
       </div>
     </main>
+  );
+}
+
+// Keep useSearchParams inside a component
+// that is rendered within Suspense.
+export default function BookConsultationPage() {
+  return (
+    <Suspense
+      fallback={
+        <main className="flex min-h-screen items-center justify-center bg-[#07130f] text-white">
+          <p className="text-sm text-white/60">Loading consultation form...</p>
+        </main>
+      }
+    >
+      <BookingFormContent />
+    </Suspense>
   );
 }
