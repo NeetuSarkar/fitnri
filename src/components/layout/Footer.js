@@ -21,7 +21,7 @@ const footerLinks = {
 };
 
 export default function Footer() {
-  const currentYear = new Date().getFullYear();
+
 
   return (
     <footer className="bg-neutral-950 text-white">
@@ -96,7 +96,7 @@ export default function Footer() {
 
         {/* Copyright */}
         <div className="flex flex-col gap-3 pt-6 text-xs text-neutral-500 sm:flex-row sm:items-center sm:justify-between">
-          <p>© {currentYear} FitNRI. All rights reserved.</p>
+          <p>© 2026 FitNRI. All rights reserved.</p>
           <p>Fitness without borders.</p>
         </div>
       </div>
